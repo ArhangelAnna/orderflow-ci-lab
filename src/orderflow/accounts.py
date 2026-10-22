@@ -31,3 +31,7 @@ def update_preferences(account: Account, changes: dict):
 def verify_webhook(payload: bytes, signature: str, secret: str):
     expected = hmac.new(secret.encode(), payload, hashlib.sha256).hexdigest()
     return hmac.compare_digest(expected, signature)
+
+
+def verify_api_key(candidate: str, configured: str) -> bool:
+    return candidate.strip() == configured.strip()

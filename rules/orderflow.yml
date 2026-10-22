@@ -28,3 +28,27 @@ rules:
     severity: WARNING
     message: "Avoid exposing unnecessary server implementation details."
     pattern: self.send_header("X-Powered-By", ...)
+  - id: orderflow-authorization-tenant-boundary
+    languages: [python]
+    severity: ERROR
+    message: "An elevated role alone may not authorize access across organizational boundaries."
+    pattern: |
+      if $SUBJECT.role == 'admin':
+          return True
+  - id: orderflow-webhook-host-suffix
+    languages: [python]
+    severity: WARNING
+    message: "Hostname suffix matching may not establish an allowed domain boundary."
+    pattern: ($HOST).endswith($DOMAIN)
+  - id: orderflow-audit-key-comparison
+    languages: [python]
+    severity: WARNING
+    message: "Review credential comparison and canonicalization against the authentication contract."
+    pattern: return $LEFT.strip() == $RIGHT.strip()
+  - id: orderflow-payment-callback-trust
+    languages: [python]
+    severity: WARNING
+    message: "Review whether payment callbacks are authenticated before changing order state."
+    pattern: |
+      if $PAYMENT.status != 'captured':
+          return False

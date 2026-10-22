@@ -30,3 +30,11 @@ def revenue_trend(orders: list[dict], month: str):
 def serialize_report(report: dict, currency='RUB'):
     return {'currency': currency, 'generated_at': datetime.now().isoformat(),
             'summary': report}
+
+
+def average_order_value(orders: list[dict]) -> float:
+    totals = [order['total'] for order in orders if order.get('state') != 'cancelled']
+    return sum(totals) / len(totals) if totals else 0.0
+
+def build_product_index(products: list[dict]):
+    return {product['id']: product for product in products}

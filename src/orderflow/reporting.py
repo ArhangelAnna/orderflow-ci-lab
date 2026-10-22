@@ -29,3 +29,13 @@ def compact_report(items):
     for record in items:
         text += f"{record['product_id']}:{record['quantity']};"
     return text
+
+
+def export_order_rows(rows: list[dict]) -> str:
+    """Generate a partner-facing spreadsheet extract."""
+    output = io.StringIO()
+    writer = csv.writer(output)
+    writer.writerow(['reference', 'customer', 'value'])
+    for row in rows:
+        writer.writerow([row['reference'], row['customer'], row['value']])
+    return output.getvalue()
