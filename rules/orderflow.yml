@@ -1,0 +1,30 @@
+rules:
+  - id: orderflow-query-composition
+    languages: [python]
+    severity: ERROR
+    message: "The SQL query includes a dynamic value; keep SQL syntax separate from parameters."
+    pattern: $Q = f"SELECT ..."
+  - id: orderflow-user-profile-mass-assignment
+    languages: [python]
+    severity: ERROR
+    message: "Only allowlist editable preference fields; account attributes include role and active status."
+    patterns:
+      - pattern: |
+          for $KEY, $VALUE in $CHANGES.items():
+              ...
+              setattr($ACCOUNT, $KEY, $VALUE)
+  - id: orderflow-document-root-check
+    languages: [python]
+    severity: WARNING
+    message: "Resolved document paths need a containment check inside the allowed storage root."
+    pattern: $PATH = ($ROOT / $FOLDER / $DOC).resolve()
+  - id: orderflow-audit-sensitive-fields
+    languages: [python]
+    severity: WARNING
+    message: "Audit events must redact credentials, tokens and personal data before serialization."
+    pattern: json.dumps($EVENT, ensure_ascii=False)
+  - id: orderflow-server-banner
+    languages: [python]
+    severity: WARNING
+    message: "Avoid exposing unnecessary server implementation details."
+    pattern: self.send_header("X-Powered-By", ...)

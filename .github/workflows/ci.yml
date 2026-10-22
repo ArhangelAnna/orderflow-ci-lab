@@ -1,0 +1,45 @@
+name: Code quality and security
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main, "student/**"]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  tests:
+    name: Unit tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install pytest
+      - run: python -m pytest -q
+
+  quality:
+    name: Ruff quality gate
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install 'ruff>=0.9,<1'
+      - run: ruff check src
+
+  security:
+    name: Semgrep security gate
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install 'semgrep>=1.100,<2'
+      - run: semgrep scan --config rules/orderflow.yml --error --metrics=off src
