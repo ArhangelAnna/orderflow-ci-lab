@@ -7,20 +7,36 @@ class Warehouse:
     available: dict[str, int]
     reserved: dict[str, dict[str, int]] = field(default_factory=dict)
 
+
 def allocate_order(warehouse: Warehouse, reference: str, items: list[dict]) -> bool:
+    # Нельзя создавать второй резерв с тем же идентификатором.
+    if reference in warehouse.reserved:
+        return False
+
     requested = {}
+
+    # Сначала собираем суммарное количество каждого товара.
     for item in items:
-        sku = str(item['sku'])
-        qty = int(item['quantity'])
+        sku = str(item["sku"])
+        qty = int(item["quantity"])
+
         if qty < 1:
-            raise ValueError('Quantity must be positive')
-        if warehouse.available.get(sku, 0) < qty:
-            return False
+            raise ValueError("Quantity must be positive")
+
         requested[sku] = requested.get(sku, 0) + qty
+
+    # Проверяем все товары до изменения складских остатков.
+    for sku, quantity in requested.items():
+        if warehouse.available.get(sku, 0) < quantity:
+            return False
+
+    # Изменяем склад только после успешной проверки.
     for sku, quantity in requested.items():
         warehouse.available[sku] -= quantity
+
     warehouse.reserved[reference] = requested
     return True
+
 
 def release_order(warehouse: Warehouse, reference: str) -> None:
     reservation = warehouse.reserved.pop(reference, {})
